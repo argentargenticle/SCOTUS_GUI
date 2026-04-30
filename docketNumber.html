@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+	<head>
+		<title>SCOTUS - GUI</title>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+	</head>
+	<body>
+		<nav class="navbar bg-body-tertiary">
+		  <div class="container-fluid">
+		    <span class="navbar-brand mb-0 h1">Navbar</span>
+		  </div>
+		</nav>
+		<div class="container-fluid">
+			<h1 class="display-1" id="header">Test</h1>
+			<ul class="list-group">
+			  <li class="list-group-item" id="docketNumber">An item</li>
+			  <li class="list-group-item" id="itemOne">An item</li>
+			  <li class="list-group-item" id="itemTwo">A second item</li>
+			  <li class="list-group-item" id="itemThree">A third item</li>
+			  <li class="list-group-item" id="itemFour">A fourth item</li>
+			  <li class="list-group-item" id="itemFive">And a fifth one</li>
+			  <li class="list-group-item" id="itemSix">And a six one</li>
+			  <li class="list-group-item" id="itemSeven">And a seven one</li>
+			</ul>
+			<div class="row" id="yays">
+				<h1>For Plaintiffs:</h1>
+			</div>
+			<div class="row" id="nay">
+				<h1>For Defendents:</h1>
+			</div>
+		</div>
+		<script>
+			caseData();
+			async function caseData(){
+				try{
+					const scotusCasesUrl = await fetch("https://raw.githubusercontent.com/argentargenticle/SCOTUS_Info/refs/heads/main/rulings/2025-26/24-109.json");
+					const data = await scotusCasesUrl.json();
+					const url = new URLSearchParams(window.location.search);
+					let defendantHTML = "";
+					data.defendants.forEach(defendant => {
+						defendantHTML += `${defendant}, `;
+					});
+					let scotusRulingLink = "";
+					scotusRulingLink += `<li>Docket Files: <a href="${data.links.scotus_docket}">${data.links.scotus_docket}</a></li>` +
+					`<li>Opionion: <a href="${data.links.scotus_ruling}">${data.links.scotus_ruling}</a></li>` +
+					`<li>SCOTUS Blog: <a href="${data.links.scotus_blog}">${data.links.scotus_blog}</a></li>`;
+					document.getElementById('header').innerHTML = data.display_name;
+					document.getElementById('docketNumber').innerHTML = `Docker Number: ${url.get('docketNumber')}`;
+					document.getElementById('itemOne').innerHTML = `Date Filed: ${data.date_filed}`;
+					document.getElementById('itemTwo').innerHTML = `Date Decided: ${data.date_decided}`;
+					document.getElementById('itemThree').innerHTML = `Defendents: ${defendantHTML}`;
+					document.getElementById('itemFour').innerHTML = `Plaintiffs: ${data.plaintiffs}`;
+					document.getElementById('itemFive').innerHTML = `Judgment: ${data.judgment}`;
+					document.getElementById('itemSix').innerHTML = `Held: ${data.held}`;
+					document.getElementById('itemSeven').innerHTML = `Links: <div style="margin:0px 20px;">` +
+					`<li>Docket Files: <a href="${data.links.scotus_docket}">${data.links.scotus_docket}</a></li>` +
+					`<li>Opionion: <a href="${data.links.scotus_ruling}">${data.links.scotus_ruling}</a></li>` +
+					`<li>SCOTUS Blog: <a href="${data.links.scotus_blog}">${data.links.scotus_blog}</a></li></div>`;
+					data.votes.against_plaintiff.forEach(temp =>{
+						justice(temp, "yays");
+					});
+					data.votes.in_favor_plaintiff.forEach(temp =>{
+						justice(temp, "nay");
+					});
+				}catch(error){
+					console.error(error);
+				}
+			}
+			async function justice(justiceMember, contentID){
+				try{
+					const justiceMemberUrl = await fetch("https://raw.githubusercontent.com/argentargenticle/SCOTUS_Info/refs/heads/main/justices/current_composition.json");
+					const data = await justiceMemberUrl.json();
+					const selectedJustice = data.justices.find(tempJustice => tempJustice.lastName === justiceMember);
+					if(selectedJustice){
+						document.getElementById(contentID).innerHTML +=
+						`<div class="card m-1" style="width:15%;">
+						  <img src="${selectedJustice.image}" class="card-img-top" alt="${selectedJustice.fullname}" id="justiceOneImage">
+						  <div class="card-body">
+						  	<h5 class="card-title" id="justiceOneTitle">${selectedJustice.fullname}</h5>
+						    <p class="card-text" id="justiceOneText">
+						    Term: ${selectedJustice.terms}
+							<br> President: ${selectedJustice.presidentNominated}
+							<br> Age: ${countdownTime(selectedJustice.DOB)}
+							<br> Been in SCOTUS: ${countdownTime(selectedJustice.dateJoinedSCOTUS)} years</p>
+						  </div>
+						</div>`;
+
+					}
+				}catch(error){
+					console.error("Error finding justice", error);
+				}
+			}
+			function countdownTime(date){
+				const today = new Date();
+				const olderDate = new Date(date);
+
+				let years = today.getFullYear() - olderDate.getFullYear();
+				const monthDiff = today.getMonth() - olderDate.getMonth();
+
+				if (monthDiff <0 || (monthDiff === 0 && today.getDate() < olderDate.getDate())) {
+					years--;
+				}
+				return years;
+			}
+		</script>
+	</body>
+</html>

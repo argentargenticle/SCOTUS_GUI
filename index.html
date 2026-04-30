@@ -1,7 +1,33 @@
 <!DOCTYPE html>
 	<head>
 		<title>SCOTUS - GUI</title>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 	</head>
 	<body>
+		<nav class="navbar bg-body-tertiary">
+		  <div class="container-fluid">
+		    <span class="navbar-brand mb-0 h1">Navbar</span>
+		  </div>
+		</nav>
+		<h1 class="display-1">Latest Scotus Cases</h1>
+		<ul class="list-group">
+		  <li class="list-group-item" id="itemOne">An item</li>
+		</ul>
+		<script>
+			fetchData();
+			async function fetchData(){
+				try{
+					const scotusCasesUrl = await fetch("https://raw.githubusercontent.com/argentargenticle/SCOTUS_Info/refs/heads/main/rulings/2025-26/24-109.json");
+					const data = await scotusCasesUrl.json();
+					console.log(data);
+					const caseName = data.case_name;
+					const docketNumber = data.docket_number;
+					document.getElementById('itemOne').innerHTML = `<a href="docketNumber.html?docketNumber=${docketNumber}">${caseName}</a>`;
+				}catch(error){
+					console.error(error);
+				}
+			}
+		</script>
 	</body>
 </html>
