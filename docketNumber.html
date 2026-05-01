@@ -13,24 +13,54 @@
             ul li a{
                 word-wrap: break-word;
             }
+            .cardsJustice{
+                width: 240px;
+            }
             @media (min-width:1050px){
                 #totalListOfJustices{
                     grid-template-columns:1fr 1fr;
                 }
             }
+            @media print and (max-width:767px){
+                .w3-image{
+                    width:150px;
+                }
+                .cardsJustice{
+                    width:150px;
+                }
+            }
+            @media print {
+                /* All your print styles go here */
+                #header, button{
+                    display: none !important;
+                }
+                #caseInfo{
+                    page-break-after: always;
+                    break-after: always;
+                }
+                .endResults{
+                    page-break-inside: avoid;
+                    break-inside: avoid;
+                }
+                p, h1, h2, h3, li{
+                    margin:0px !important;
+                    line-height: 1.1;
+                }
+            }
         </style>
     </head>
     <body>
-        <div class="w3-bar w3-deep-purple">
+        <div id="header" class="w3-bar w3-deep-purple">
             <a href="index.html" class="w3-bar-item w3-button">Home</a>
         </div>        
         <ul class="w3-ul" id="caseInfo"></ul>
+        <button class="w3-btn w3-purple w3-round-xxlarge" onclick="toggleColorCoat()">Toggle President Nominated Color</button>
         <div class="w3-grid" id="totalListOfJustices">
-            <div class="w3-padding">
+            <div class="w3-padding endResults">
                 <h1>Majority</h1>
                 <div class="w3-flex listOfJustices" id="majority"></div>
             </div>
-            <div class="w3-padding">
+            <div class="w3-padding endResults">
                 <h1>Minority</h1>
                 <div class="w3-flex listOfJustices" id="minority"></div>
             </div>
@@ -86,39 +116,50 @@
                 }catch(error){
                     console.log(error);
                 }
-                async function justice(jusiceMember, solt){
-                    try{
-                        const justiceMemberURL = await fetch("https://raw.githubusercontent.com/argentargenticle/SCOTUS_Info/refs/heads/main/justices/current_composition.json");
-                        const data = await justiceMemberURL.json();
-                        const selectedJustice = data.justices.find(temp => temp.lastName === jusiceMember);
-                        if(selectedJustice){
-                            document.getElementById(solt).innerHTML += 
-                            ` <div class="w3-card-4 w3-center">
-                                <h3>${selectedJustice.fullname}</h3>
-                                <img src="${selectedJustice.image}" alt="" height="300px">
-                                <div class="w3-container" style="max-width:240px;">
-                                    <p>Nominated Under: ${selectedJustice.presidentNominated}</p>
-                                    <p>Term: ${selectedJustice.terms}</p>
-                                    <p>Term Length: ${countdownToToday(selectedJustice.dateJoinedSCOTUS)} years</p>
-                                    <p>Age: ${countdownToToday(selectedJustice.DOB)}</p>
-                                </div>
-                            </div>`;
-                        }
-                    }catch(error){
-                        console.log(error);
+            }
+            async function justice(justiceMember, slot){
+                try{
+                    const justiceMemberURL = await fetch("https://raw.githubusercontent.com/argentargenticle/SCOTUS_Info/refs/heads/main/justices/current_composition.json");
+                    const data = await justiceMemberURL.json();
+                    const selectedJustice = data.justices.find(temp => temp.lastName === justiceMember);
+                    if(selectedJustice){
+                        document.getElementById(slot).innerHTML += 
+                        ` <div class="w3-card-4 w3-center ${selectedJustice.partyOfPresidentNominated} cardsJustice">
+                            <h3>${selectedJustice.fullname}</h3>
+                            <img src="${selectedJustice.image}" class="w3-image" alt="${selectedJustice.fullname}" width="240px" height="300px">
+                            <div class="w3-container ">
+                                <p>Nominated Under: ${selectedJustice.presidentNominated}</p>
+                                <p>Term: ${selectedJustice.terms}</p>
+                                <p>Term Length: ${countdownToToday(selectedJustice.dateJoinedSCOTUS)} years</p>
+                                <p>Age: ${countdownToToday(selectedJustice.DOB)}</p>
+                            </div>
+                        </div>`;
                     }
+                }catch(error){
+                    console.log(error);
                 }
-                function countdownToToday(date){
-                    const today = new Date();
-                    const olderDate = new Date(date);
+            }
+            function countdownToToday(date){
+                const today = new Date();
+                const olderDate = new Date(date);
 
-                    let years = today.getFullYear() - olderDate.getFullYear();
-                    const monthDiff = today.getMonth() - olderDate.getMonth();
+                let years = today.getFullYear() - olderDate.getFullYear();
+                const monthDiff = today.getMonth() - olderDate.getMonth();
 
-                    if(monthDiff < 0 || (monthDiff === 0 && today.getDate() < olderDate.getDate())){
-                        years--;
-                    }
-                    return years;
+                if(monthDiff < 0 || (monthDiff === 0 && today.getDate() < olderDate.getDate())){
+                    years--;
+                }
+                return years;
+            }
+            function toggleColorCoat(){
+                const rep = document.getElementsByClassName("Republican");
+                const dem = document.getElementsByClassName("Democratic");
+
+                for (let i = 0; i < rep.length; i++) {
+                    rep[i].classList.toggle("w3-pale-red");
+                }
+                for (let i = 0; i < dem.length; i++) {
+                    dem[i].classList.toggle("w3-pale-blue");
                 }
             }
         </script>
