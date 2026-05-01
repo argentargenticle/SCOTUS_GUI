@@ -1,107 +1,126 @@
 <!DOCTYPE html>
-	<head>
-		<title>SCOTUS - GUI</title>
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-	</head>
-	<body>
-		<nav class="navbar bg-body-tertiary">
-		  <div class="container-fluid">
-		    <span class="navbar-brand mb-0 h1">Navbar</span>
-		  </div>
-		</nav>
-		<div class="container-fluid">
-			<h1 class="display-1" id="header">Test</h1>
-			<ul class="list-group">
-			  <li class="list-group-item" id="docketNumber">An item</li>
-			  <li class="list-group-item" id="itemOne">An item</li>
-			  <li class="list-group-item" id="itemTwo">A second item</li>
-			  <li class="list-group-item" id="itemThree">A third item</li>
-			  <li class="list-group-item" id="itemFour">A fourth item</li>
-			  <li class="list-group-item" id="itemFive">And a fifth one</li>
-			  <li class="list-group-item" id="itemSix">And a six one</li>
-			  <li class="list-group-item" id="itemSeven">And a seven one</li>
-			</ul>
-			<div class="row" id="yays">
-				<h1>For Plaintiffs:</h1>
-			</div>
-			<div class="row" id="nay">
-				<h1>For Defendents:</h1>
-			</div>
-		</div>
-		<script>
-			caseData();
-			async function caseData(){
-				try{
-					const scotusCasesUrl = await fetch("https://raw.githubusercontent.com/argentargenticle/SCOTUS_Info/refs/heads/main/rulings/2025-26/24-109.json");
-					const data = await scotusCasesUrl.json();
-					const url = new URLSearchParams(window.location.search);
-					let defendantHTML = "";
-					data.defendants.forEach(defendant => {
-						defendantHTML += `${defendant}, `;
-					});
-					let scotusRulingLink = "";
-					scotusRulingLink += `<li>Docket Files: <a href="${data.links.scotus_docket}">${data.links.scotus_docket}</a></li>` +
-					`<li>Opionion: <a href="${data.links.scotus_ruling}">${data.links.scotus_ruling}</a></li>` +
-					`<li>SCOTUS Blog: <a href="${data.links.scotus_blog}">${data.links.scotus_blog}</a></li>`;
-					document.getElementById('header').innerHTML = data.display_name;
-					document.getElementById('docketNumber').innerHTML = `Docker Number: ${url.get('docketNumber')}`;
-					document.getElementById('itemOne').innerHTML = `Date Filed: ${data.date_filed}`;
-					document.getElementById('itemTwo').innerHTML = `Date Decided: ${data.date_decided}`;
-					document.getElementById('itemThree').innerHTML = `Defendents: ${defendantHTML}`;
-					document.getElementById('itemFour').innerHTML = `Plaintiffs: ${data.plaintiffs}`;
-					document.getElementById('itemFive').innerHTML = `Judgment: ${data.judgment}`;
-					document.getElementById('itemSix').innerHTML = `Held: ${data.held}`;
-					document.getElementById('itemSeven').innerHTML = `Links: <div style="margin:0px 20px;">` +
-					`<li>Docket Files: <a href="${data.links.scotus_docket}">${data.links.scotus_docket}</a></li>` +
-					`<li>Opionion: <a href="${data.links.scotus_ruling}">${data.links.scotus_ruling}</a></li>` +
-					`<li>SCOTUS Blog: <a href="${data.links.scotus_blog}">${data.links.scotus_blog}</a></li></div>`;
-					data.votes.against_plaintiff.forEach(temp =>{
-						justice(temp, "yays");
-					});
-					data.votes.in_favor_plaintiff.forEach(temp =>{
-						justice(temp, "nay");
-					});
-				}catch(error){
-					console.error(error);
-				}
-			}
-			async function justice(justiceMember, contentID){
-				try{
-					const justiceMemberUrl = await fetch("https://raw.githubusercontent.com/argentargenticle/SCOTUS_Info/refs/heads/main/justices/current_composition.json");
-					const data = await justiceMemberUrl.json();
-					const selectedJustice = data.justices.find(tempJustice => tempJustice.lastName === justiceMember);
-					if(selectedJustice){
-						document.getElementById(contentID).innerHTML +=
-						`<div class="card m-1" style="width:15%;">
-						  <img src="${selectedJustice.image}" class="card-img-top" alt="${selectedJustice.fullname}" id="justiceOneImage">
-						  <div class="card-body">
-						  	<h5 class="card-title" id="justiceOneTitle">${selectedJustice.fullname}</h5>
-						    <p class="card-text" id="justiceOneText">
-						    Term: ${selectedJustice.terms}
-							<br> President: ${selectedJustice.presidentNominated}
-							<br> Age: ${countdownTime(selectedJustice.DOB)}
-							<br> Been in SCOTUS: ${countdownTime(selectedJustice.dateJoinedSCOTUS)} years</p>
-						  </div>
-						</div>`;
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SCOTUS Case Reviewer - Case</title>
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
+        <style>
+            .listOfJustices{
+                gap:8px;
+                flex-wrap: wrap;
+            }
+            ul li a{
+                word-wrap: break-word;
+            }
+            @media (min-width:1050px){
+                #totalListOfJustices{
+                    grid-template-columns:1fr 1fr;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="w3-bar w3-deep-purple">
+            <a href="index.html" class="w3-bar-item w3-button">Home</a>
+        </div>        
+        <ul class="w3-ul" id="caseInfo"></ul>
+        <div class="w3-grid" id="totalListOfJustices">
+            <div class="w3-padding">
+                <h1>Majority</h1>
+                <div class="w3-flex listOfJustices" id="majority"></div>
+            </div>
+            <div class="w3-padding">
+                <h1>Minority</h1>
+                <div class="w3-flex listOfJustices" id="minority"></div>
+            </div>
+        </div>
+        <script>
+            const url = new URLSearchParams(window.location.search);
+            caseData();
+            async function masterData() {
+                try{
+                    const masterList = await fetch("https://raw.githubusercontent.com/argentargenticle/SCOTUS_Info/refs/heads/main/rulings/2025-26/master_list.json");
+                    const masterData = await masterList.json();
+                    const caseObject = masterData.cases.find(tempCase => tempCase.docket_number === url.get('docketNumber'));
+                    return caseObject.link;
+                }catch(error){
+                    console.log(error);
+                }
+            }
+            async function caseData() {
+                try{
+                    const masterListLink = await masterData();
+                    const cases = await fetch(masterListLink);
+                    const indivdualCase = await cases.json();
+                    let petitionerHTML = "";
+                    indivdualCase.petitioner.forEach(element => {
+                        petitionerHTML += `${element}, `;
+                    });
+                    document.getElementById('caseInfo').innerHTML += 
+                        `<li class="w3-card w3-padding-large">
+                            <h1>${indivdualCase.display_name}</h1>
+                            <ul>
+                                <li>Docket Number: ${indivdualCase.docket_number}</li>
+                                <li>Petitioner: ${petitionerHTML} </li>
+                                <li>Respondent: ${indivdualCase.respondent}</li>
+                                <li>Ruling: ${indivdualCase.ruling}</li>
+                                <li>Date Filed: ${indivdualCase.date_filed}</li>
+                                <li>Date Decided: ${indivdualCase.date_decided}</li>
+                                <li>Reason: ${indivdualCase.held}</li>
+                                <li><h2>Links:</h2>
+                                    <ul>
+                                        <li>SCOTUS Blog: <a href="${indivdualCase.links.scotus_blog}">${indivdualCase.links.scotus_blog}</a></li>
+                                        <li>SCOTUS View: <a href="${indivdualCase.links.scotus_docket}">${indivdualCase.links.scotus_docket}</a></li>
+                                        <li>SCOTUS Opinion: <a href="${indivdualCase.links.scotus_ruling}">${indivdualCase.links.scotus_ruling}</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>`;
+                        indivdualCase.votes.majority.forEach(temp=>{
+                            justice(temp, "majority");
+                        });
+                        indivdualCase.votes.minority.forEach(temp=>{
+                            justice(temp, "minority");
+                        });
+                }catch(error){
+                    console.log(error);
+                }
+                async function justice(jusiceMember, solt){
+                    try{
+                        const justiceMemberURL = await fetch("https://raw.githubusercontent.com/argentargenticle/SCOTUS_Info/refs/heads/main/justices/current_composition.json");
+                        const data = await justiceMemberURL.json();
+                        const selectedJustice = data.justices.find(temp => temp.lastName === jusiceMember);
+                        if(selectedJustice){
+                            document.getElementById(solt).innerHTML += 
+                            ` <div class="w3-card-4 w3-center">
+                                <h3>${selectedJustice.fullname}</h3>
+                                <img src="${selectedJustice.image}" alt="" height="300px">
+                                <div class="w3-container" style="max-width:240px;">
+                                    <p>Nominated Under: ${selectedJustice.presidentNominated}</p>
+                                    <p>Term: ${selectedJustice.terms}</p>
+                                    <p>Term Length: ${countdownToToday(selectedJustice.dateJoinedSCOTUS)} years</p>
+                                    <p>Age: ${countdownToToday(selectedJustice.DOB)}</p>
+                                </div>
+                            </div>`;
+                        }
+                    }catch(error){
+                        console.log(error);
+                    }
+                }
+                function countdownToToday(date){
+                    const today = new Date();
+                    const olderDate = new Date(date);
 
-					}
-				}catch(error){
-					console.error("Error finding justice", error);
-				}
-			}
-			function countdownTime(date){
-				const today = new Date();
-				const olderDate = new Date(date);
+                    let years = today.getFullYear() - olderDate.getFullYear();
+                    const monthDiff = today.getMonth() - olderDate.getMonth();
 
-				let years = today.getFullYear() - olderDate.getFullYear();
-				const monthDiff = today.getMonth() - olderDate.getMonth();
-
-				if (monthDiff <0 || (monthDiff === 0 && today.getDate() < olderDate.getDate())) {
-					years--;
-				}
-				return years;
-			}
-		</script>
-	</body>
+                    if(monthDiff < 0 || (monthDiff === 0 && today.getDate() < olderDate.getDate())){
+                        years--;
+                    }
+                    return years;
+                }
+            }
+        </script>
+    </body>
 </html>
