@@ -1,80 +1,99 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>SCOTUS Case Reviewer - Case</title>
-        <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
-        <style>
-            .listOfJustices{
-                gap:8px;
-                flex-wrap: wrap;
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCOTUS Case Reviewer - Case</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
+    <style>
+        .listOfJustices {
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        ul li a {
+            word-wrap: break-word;
+        }
+
+        .cardsJustice {
+            width: 240px;
+        }
+
+        @media print and (max-width:767px) {
+
+            .w3-image,
+            .cardsJustice {
+                width: 150px;
             }
-            ul li a{
-                word-wrap: break-word;
+        }
+
+        @media print {
+
+            /* All your print styles go here */
+            #header,
+            button {
+                display: none !important;
             }
-            .cardsJustice{
-                width: 240px;
+
+            #caseInfo {
+                page-break-after: always;
+                break-after: always;
             }
-            @media print and (max-width:767px){
-                .w3-image, .cardsJustice{
-                    width:150px;
-                }
+
+            .endResults {
+                page-break-inside: avoid;
+                break-inside: avoid;
             }
-            @media print {
-                /* All your print styles go here */
-                #header, button{
-                    display: none !important;
-                }
-                #caseInfo{
-                    page-break-after: always;
-                    break-after: always;
-                }
-                .endResults{
-                    page-break-inside: avoid;
-                    break-inside: avoid;
-                }
-                p, h1, h2, h3, li{
-                    margin:0px !important;
-                    line-height: 1.1;
-                }
+
+            p,
+            h1,
+            h2,
+            h3,
+            li {
+                margin: 0px !important;
+                line-height: 1.1;
             }
-        </style>
-    </head>
-    <body>
-        <div id="header" class="w3-bar w3-deep-purple">
-            <a href="index.html" class="w3-bar-item w3-button">Home</a>
-        </div>        
-        <ul class="w3-ul" id="caseInfo"></ul>
-        <button class="w3-btn w3-purple w3-round-xxlarge" onclick="toggleColorCoat()">Toggle President Nominated Color</button>
-        <button class="w3-btn w3-purple w3-round-xxlarge" onclick="toggleOneRow()">Toggle One Row</button>
-        <button class="w3-btn w3-purple w3-round-xxlarge" onclick="toggleExtraInfoJustices()">Toggle Extra Stats Justices</button>
-        <button class="w3-btn w3-purple w3-round-xxlarge" onclick="toggleExtraInfoCase()">Toggle Extra Info Case</button>
-        <div class="w3-flex" id="totalListOfJustices">
-            <div class="w3-padding endResults">
-                <h1>Majority</h1>
-                <div class="w3-flex listOfJustices" id="majority"></div>
-            </div>
-            <div class="w3-padding endResults">
-                <h1>Minority</h1>
-                <div class="w3-flex listOfJustices" id="minority"></div>
-            </div>
+        }
+    </style>
+</head>
+
+<body>
+    <div id="header" class="w3-bar w3-deep-purple">
+        <a href="index.html" class="w3-bar-item w3-button">Home</a>
+    </div>
+    <ul class="w3-ul" id="caseInfo"></ul>
+    <button class="w3-btn w3-purple w3-round-xxlarge" onclick="toggleColorCoat()">Toggle President Nominated
+        Color</button>
+    <button class="w3-btn w3-purple w3-round-xxlarge" onclick="toggleOneRow()">Toggle One Row</button>
+    <button class="w3-btn w3-purple w3-round-xxlarge" onclick="toggleExtraInfoJustices()">Toggle Extra Stats
+        Justices</button>
+    <button class="w3-btn w3-purple w3-round-xxlarge" onclick="toggleExtraInfoCase()">Toggle Extra Info Case</button>
+    <div class="w3-flex" id="totalListOfJustices">
+        <div class="w3-padding endResults">
+            <h1>Majority</h1>
+            <div class="w3-flex listOfJustices" id="majority"></div>
         </div>
-        <script>
-            const url = new URLSearchParams(window.location.search);
-            caseData();
-            async function caseData() {
-                try{
-                    //const masterListLink = await masterData();
-                    const masterListLink = `https://raw.githubusercontent.com/argentargenticle/SCOTUS_Info/refs/heads/main/rulings/${url.get('term')}/${url.get('docketNumber')}.json`
-                    const cases = await fetch(masterListLink);
-                    const indivdualCase = await cases.json();
-                    let petitionerHTML = "";
-                    indivdualCase.petitioner.forEach(element => {
-                        petitionerHTML += `${element}, `;
-                    });
-                    document.getElementById('caseInfo').innerHTML += 
-                        `<li class="w3-card w3-padding-large">
+        <div class="w3-padding endResults">
+            <h1>Minority</h1>
+            <div class="w3-flex listOfJustices" id="minority"></div>
+        </div>
+    </div>
+    <script>
+        const url = new URLSearchParams(window.location.search);
+        caseData();
+        async function caseData() {
+            try {
+                //const masterListLink = await masterData();
+                const masterListLink = `https://raw.githubusercontent.com/argentargenticle/SCOTUS_Info/refs/heads/main/rulings/${url.get('term')}/${url.get('docketNumber')}.json`
+                const cases = await fetch(masterListLink);
+                const indivdualCase = await cases.json();
+                let petitionerHTML = "";
+                indivdualCase.petitioner.forEach(element => {
+                    petitionerHTML += `${element}, `;
+                });
+                document.getElementById('caseInfo').innerHTML +=
+                    `<li class="w3-card w3-padding-large">
                             <h1>${indivdualCase.display_name}</h1>
                             <ul>
                                 <li class="caseInfo">Docket Number: ${indivdualCase.docket_number}</li>
@@ -87,29 +106,37 @@
                                 <li class="caseInfo"><h2>Links:</h2>
                                     <ul class="caseInfo">
                                         <li>SCOTUS Blog: <a href="${indivdualCase.links.scotus_blog}">${indivdualCase.links.scotus_blog}</a></li>
-                                        <li>SCOTUS View: <a href="${indivdualCase.links.scotus_docket}">${indivdualCase.links.scotus_docket}</a></li>
+                                        <li>SCOTUS View: <a href="https://www.supremecourt.gov/docket/docketfiles/html/public/${indivdualCase.docket_number}.html">https://www.supremecourt.gov/docket/docketfiles/html/public/${indivdualCase.docket_number}.html</a></li>
                                         <li>SCOTUS Opinion: <a href="${indivdualCase.links.scotus_ruling}">${indivdualCase.links.scotus_ruling}</a></li>
                                     </ul>
                                 </li>
                             </ul>
                         </li>`;
-                        indivdualCase.votes.majority.forEach(temp=>{
-                            justice(temp, "majority");
-                        });
-                        indivdualCase.votes.minority.forEach(temp=>{
-                            justice(temp, "minority");
-                        });
-                }catch(error){
-                    console.log(error);
-                }
+                const yearDecided = new Date(indivdualCase.date_decided).getFullYear();
+                indivdualCase.votes.majority.forEach(temp => {
+                    justice(temp, "majority", yearDecided);
+                });
+                indivdualCase.votes.minority.forEach(temp => {
+                    justice(temp, "minority", yearDecided);
+                });
+            } catch (error) {
+                console.log(error);
             }
-            async function justice(justiceMember, slot){
-                try{
-                    const justiceMemberURL = await fetch("https://raw.githubusercontent.com/argentargenticle/SCOTUS_Info/refs/heads/main/justices/current_composition.json");
-                    const data = await justiceMemberURL.json();
-                    const selectedJustice = data.justices.find(temp => temp.lastName === justiceMember);
-                    if(selectedJustice){
-                        document.getElementById(slot).innerHTML += 
+        }
+        async function justice(justiceMember, slot, yearDecided) {
+            try {
+                justiceMasterList(yearDecided);
+                const thisYear = new Date().getFullYear();
+                let justiceMemberURL = "";
+                if (yearDecided == thisYear) {
+                    justiceMemberURL = await fetch("https://raw.githubusercontent.com/argentargenticle/SCOTUS_Info/refs/heads/main/justices/2005-Present.json");
+                } else {
+                    justiceMemberURL = await fetch("https://raw.githubusercontent.com/argentargenticle/SCOTUS_Info/refs/heads/main/justices/2005-Present.json");
+                }
+                const data = await justiceMemberURL.json();
+                const selectedJustice = data.justices.find(temp => temp.lastName === justiceMember);
+                if (selectedJustice) {
+                    document.getElementById(slot).innerHTML +=
                         ` <div class="w3-card-4 w3-center ${selectedJustice.partyOfPresidentNominated} cardsJustice">
                             <h3 class="justicesName">${selectedJustice.fullname}</h3>
                             <img src="${selectedJustice.image}" class="w3-image" alt="${selectedJustice.fullname}" width="240px" height="300px">
@@ -120,60 +147,70 @@
                                 <p>Age: ${countdownToToday(selectedJustice.DOB)}</p>
                             </div>
                         </div>`;
-                    }
-                }catch(error){
-                    console.log(error);
                 }
+            } catch (error) {
+                console.log(error);
             }
-            function countdownToToday(date){
-                const today = new Date();
-                const olderDate = new Date(date);
+        }
+        async function justiceMasterList(yearDecided){
+            const masterListURL = await fetch("https://raw.githubusercontent.com/argentargenticle/SCOTUS_Info/refs/heads/main/justices/master_list.json");
+            const masterListTemp = await masterListURL.json();
+            const selectedCourt = masterListTemp.courts.find(temp => ( (new Date(temp.startTerm)) < yearDecided) && ((new Date(temp.endTerm)) > yearDecided) );
+            console.log("Year Decided: " + yearDecided)
+            console.log(selectedCourt);
+        }
+        function countdownToToday(date) {
+            const today = new Date();
+            const olderDate = new Date(date);
 
-                let years = today.getFullYear() - olderDate.getFullYear();
-                const monthDiff = today.getMonth() - olderDate.getMonth();
+            let years = today.getFullYear() - olderDate.getFullYear();
+            const monthDiff = today.getMonth() - olderDate.getMonth();
 
-                if(monthDiff < 0 || (monthDiff === 0 && today.getDate() < olderDate.getDate())){
-                    years--;
-                }
-                return years;
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < olderDate.getDate())) {
+                years--;
             }
-            function toggleColorCoat(){
-                const rep = document.getElementsByClassName("Republican");
-                const dem = document.getElementsByClassName("Democratic");
+            return years;
+        }
+        function toggleColorCoat() {
+            const rep = document.getElementsByClassName("Republican");
+            const dem = document.getElementsByClassName("Democratic");
 
-                for (let i = 0; i < rep.length; i++) {
-                    rep[i].classList.toggle("w3-pale-red");
-                }
-                for (let i = 0; i < dem.length; i++) {
-                    dem[i].classList.toggle("w3-pale-blue");
-                }
+            for (let i = 0; i < rep.length; i++) {
+                rep[i].classList.toggle("w3-pale-red");
             }
-            function toggleOneRow() {
-                const tempTotal = document.getElementsByClassName("cardsJustice");
-                const justicesNames = document.getElementsByClassName("justicesName");
+            for (let i = 0; i < dem.length; i++) {
+                dem[i].classList.toggle("w3-pale-blue");
+            }
+        }
+        function toggleOneRow() {
+            const tempTotal = document.getElementsByClassName("cardsJustice");
+            const justicesNames = document.getElementsByClassName("justicesName");
 
-                for (let i = 0; i < justicesNames.length; i++) {
-                    justicesNames[i].style.fontSize = "large";
-                    justicesNames[i].style.margin = "0px";
-                    justicesNames[i].style.height = "54px";
-                }
-                for (let i = 0; i < tempTotal.length; i++) {
-                    tempTotal[i].style.width = "125px";
-                }
+            for (let i = 0; i < justicesNames.length; i++) {
+                justicesNames[i].style.margin = "0px";
+                justicesNames[i].style.fontSize = "large";
+                justicesNames[i].style.height = "54px";
+            }
+            for (let i = 0; i < tempTotal.length; i++) {
+                tempTotal[i].style.width = "125px";
+            }
 
-                //TODO: Make so you can toggle this off
-            }
-            function toggleExtraInfoJustices(){
-                document.querySelectorAll(".cardsJustice p").forEach(element => {
-                    element.style.display = (element.style.display === "none") ? "block" : "none";
-                });
-                
-            }
-            function toggleExtraInfoCase(){
-                document.querySelectorAll(".caseInfo").forEach(element => {
-                    element.style.display = (element.style.display === "none") ? "block" : "none";
-                });
-            }
-        </script>
-    </body>
+            //TODO: Make so you can toggle this off
+        }
+        function toggleExtraInfoJustices() {
+            document.querySelectorAll(".cardsJustice p").forEach(element => {
+                element.style.display = (element.style.display === "none") ? "block" : "none";
+            });
+
+        }
+        function toggleExtraInfoCase() {
+            document.querySelectorAll(".caseInfo").forEach(element => {
+                element.style.display = (element.style.display === "none") ? "block" : "none";
+            });
+        }
+        // TODO: Button/function to hide minority
+        // TODO: Button/function to hide majority
+    </script>
+</body>
+
 </html>
