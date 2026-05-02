@@ -63,19 +63,10 @@
         <script>
             const url = new URLSearchParams(window.location.search);
             caseData();
-            async function masterData() {
-                try{
-                    const masterList = await fetch("https://raw.githubusercontent.com/argentargenticle/SCOTUS_Info/refs/heads/main/rulings/2025-26/master_list.json");
-                    const masterData = await masterList.json();
-                    const caseObject = masterData.cases.find(tempCase => tempCase.docket_number === url.get('docketNumber'));
-                    return caseObject.link;
-                }catch(error){
-                    console.log(error);
-                }
-            }
             async function caseData() {
                 try{
-                    const masterListLink = await masterData();
+                    //const masterListLink = await masterData();
+                    const masterListLink = `https://raw.githubusercontent.com/argentargenticle/SCOTUS_Info/refs/heads/main/rulings/${url.get('term')}/${url.get('docketNumber')}.json`
                     const cases = await fetch(masterListLink);
                     const indivdualCase = await cases.json();
                     let petitionerHTML = "";
