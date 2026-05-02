@@ -152,16 +152,16 @@
                 const tempTotal = document.getElementsByClassName("cardsJustice");
                 const justicesNames = document.getElementsByClassName("justicesName");
 
-                // Loop through the specific names list you already defined
                 for (let i = 0; i < justicesNames.length; i++) {
                     justicesNames[i].style.fontSize = "large";
                     justicesNames[i].style.margin = "0px";
                     justicesNames[i].style.height = "54px";
                 }
-                // Loop through cards to update width
                 for (let i = 0; i < tempTotal.length; i++) {
                     tempTotal[i].style.width = "125px";
                 }
+
+                //TODO: Make so you can toggle this off
             }
             function toggleExtraInfoJustices(){
                 document.querySelectorAll(".cardsJustice p").forEach(element => {
