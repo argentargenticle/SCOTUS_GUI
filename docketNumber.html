@@ -16,16 +16,8 @@
             .cardsJustice{
                 width: 240px;
             }
-            @media (min-width:1050px){
-                #totalListOfJustices{
-                    grid-template-columns:1fr 1fr;
-                }
-            }
             @media print and (max-width:767px){
-                .w3-image{
-                    width:150px;
-                }
-                .cardsJustice{
+                .w3-image, .cardsJustice{
                     width:150px;
                 }
             }
@@ -55,7 +47,10 @@
         </div>        
         <ul class="w3-ul" id="caseInfo"></ul>
         <button class="w3-btn w3-purple w3-round-xxlarge" onclick="toggleColorCoat()">Toggle President Nominated Color</button>
-        <div class="w3-grid" id="totalListOfJustices">
+        <button class="w3-btn w3-purple w3-round-xxlarge" onclick="toggleOneRow()">Toggle One Row</button>
+        <button class="w3-btn w3-purple w3-round-xxlarge" onclick="toggleExtraInfoJustices()">Toggle Extra Stats Justices</button>
+        <button class="w3-btn w3-purple w3-round-xxlarge" onclick="toggleExtraInfoCase()">Toggle Extra Info Case</button>
+        <div class="w3-flex" id="totalListOfJustices">
             <div class="w3-padding endResults">
                 <h1>Majority</h1>
                 <div class="w3-flex listOfJustices" id="majority"></div>
@@ -91,15 +86,15 @@
                         `<li class="w3-card w3-padding-large">
                             <h1>${indivdualCase.display_name}</h1>
                             <ul>
-                                <li>Docket Number: ${indivdualCase.docket_number}</li>
-                                <li>Petitioner: ${petitionerHTML} </li>
-                                <li>Respondent: ${indivdualCase.respondent}</li>
-                                <li>Ruling: ${indivdualCase.ruling}</li>
-                                <li>Date Filed: ${indivdualCase.date_filed}</li>
-                                <li>Date Decided: ${indivdualCase.date_decided}</li>
-                                <li>Reason: ${indivdualCase.held}</li>
-                                <li><h2>Links:</h2>
-                                    <ul>
+                                <li class="caseInfo">Docket Number: ${indivdualCase.docket_number}</li>
+                                <li class="caseInfo">Petitioner: ${petitionerHTML} </li>
+                                <li class="caseInfo">Respondent: ${indivdualCase.respondent}</li>
+                                <li class="caseInfo">Ruling: ${indivdualCase.ruling}</li>
+                                <li class="caseInfo">Date Filed: ${indivdualCase.date_filed}</li>
+                                <li class="caseInfo">Date Decided: ${indivdualCase.date_decided}</li>
+                                <li class="caseInfo">Reason: ${indivdualCase.held}</li>
+                                <li class="caseInfo"><h2>Links:</h2>
+                                    <ul class="caseInfo">
                                         <li>SCOTUS Blog: <a href="${indivdualCase.links.scotus_blog}">${indivdualCase.links.scotus_blog}</a></li>
                                         <li>SCOTUS View: <a href="${indivdualCase.links.scotus_docket}">${indivdualCase.links.scotus_docket}</a></li>
                                         <li>SCOTUS Opinion: <a href="${indivdualCase.links.scotus_ruling}">${indivdualCase.links.scotus_ruling}</a></li>
@@ -125,7 +120,7 @@
                     if(selectedJustice){
                         document.getElementById(slot).innerHTML += 
                         ` <div class="w3-card-4 w3-center ${selectedJustice.partyOfPresidentNominated} cardsJustice">
-                            <h3>${selectedJustice.fullname}</h3>
+                            <h3 class="justicesName">${selectedJustice.fullname}</h3>
                             <img src="${selectedJustice.image}" class="w3-image" alt="${selectedJustice.fullname}" width="240px" height="300px">
                             <div class="w3-container ">
                                 <p>Nominated Under: ${selectedJustice.presidentNominated}</p>
@@ -161,6 +156,32 @@
                 for (let i = 0; i < dem.length; i++) {
                     dem[i].classList.toggle("w3-pale-blue");
                 }
+            }
+            function toggleOneRow() {
+                const tempTotal = document.getElementsByClassName("cardsJustice");
+                const justicesNames = document.getElementsByClassName("justicesName");
+
+                // Loop through the specific names list you already defined
+                for (let i = 0; i < justicesNames.length; i++) {
+                    justicesNames[i].style.fontSize = "large";
+                    justicesNames[i].style.margin = "0px";
+                    justicesNames[i].style.height = "54px";
+                }
+                // Loop through cards to update width
+                for (let i = 0; i < tempTotal.length; i++) {
+                    tempTotal[i].style.width = "125px";
+                }
+            }
+            function toggleExtraInfoJustices(){
+                document.querySelectorAll(".cardsJustice p").forEach(element => {
+                    element.style.display = (element.style.display === "none") ? "block" : "none";
+                });
+                
+            }
+            function toggleExtraInfoCase(){
+                document.querySelectorAll(".caseInfo").forEach(element => {
+                    element.style.display = (element.style.display === "none") ? "block" : "none";
+                });
             }
         </script>
     </body>
