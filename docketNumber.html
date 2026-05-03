@@ -96,7 +96,7 @@
                                 <li class="caseInfo">Petitioner: ${indivdualCase.petitioner}</li>
                                 <li class="caseInfo">Respondent: ${indivdualCase.respondent}</li>
                                 <li class="caseInfo">Ruling: ${indivdualCase.ruling}</li>
-                                <li class="caseInfo">Date Filed: ${indivdualCase.date_filed}</li>
+                                <li class="caseInfo">Date Argued: ${indivdualCase.date_argued}</li>
                                 <li class="caseInfo">Date Decided: ${indivdualCase.date_decided}</li>
                                 <li class="caseInfo">Reason: ${indivdualCase.held}</li>
                             </ul>
@@ -114,15 +114,15 @@
         }
         async function justice(justiceMember, slot, yearDecided) {
             try {
-                justiceMasterList(yearDecided);
                 const thisYear = new Date().getFullYear();
                 let justiceMemberURL = "";
                 if (yearDecided == thisYear) {
-                    justiceMemberURL = await fetch("https://raw.githubusercontent.com/argentargenticle/SCOTUS_Info/refs/heads/main/justices/2005-Present.json");
+                    justiceMemberURL = "https://raw.githubusercontent.com/argentargenticle/SCOTUS_Info/refs/heads/main/justices/2005-Present.json";
                 } else {
-                    justiceMemberURL = await fetch("https://raw.githubusercontent.com/argentargenticle/SCOTUS_Info/refs/heads/main/justices/2005-Present.json");
+                    justiceMemberURL = await justiceMasterList(yearDecided);
                 }
-                const data = await justiceMemberURL.json();
+                const justiceMemberFetch = await fetch(justiceMemberURL);
+                const data = await justiceMemberFetch.json();
                 const selectedJustice = data.justices.find(temp => temp.lastName === justiceMember);
                 if (selectedJustice) {
                     document.getElementById(slot).innerHTML +=
@@ -142,11 +142,10 @@
             }
         }
         async function justiceMasterList(yearDecided){
-            const masterListURL = await fetch("https://raw.githubusercontent.com/argentargenticle/SCOTUS_Info/refs/heads/main/justices/master_list.json");
-            const masterListTemp = await masterListURL.json();
-            const selectedCourt = masterListTemp.courts.find(temp => ( (new Date(temp.startTerm)) < yearDecided) && ((new Date(temp.endTerm)) > yearDecided) );
-            console.log("Year Decided: " + yearDecided)
-            console.log(selectedCourt);
+            const url = await fetch("https://raw.githubusercontent.com/argentargenticle/SCOTUS_Info/refs/heads/main/justices/master_list.json");
+            const data = await url.json();
+            const tempMain = data.courts.find(temp => temp.startTerm < yearDecided);
+            return `https://raw.githubusercontent.com/argentargenticle/SCOTUS_Info/refs/heads/main/justices/${tempMain.startTerm}-${tempMain.endTerm}.json`;
         }
         function countdownToToday(date) {
             const today = new Date();
