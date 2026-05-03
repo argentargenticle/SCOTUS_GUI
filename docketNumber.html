@@ -88,28 +88,17 @@
                 const masterListLink = `https://raw.githubusercontent.com/argentargenticle/SCOTUS_Info/refs/heads/main/rulings/${url.get('term')}/${url.get('docketNumber')}.json`
                 const cases = await fetch(masterListLink);
                 const indivdualCase = await cases.json();
-                let petitionerHTML = "";
-                indivdualCase.petitioner.forEach(element => {
-                    petitionerHTML += `${element}, `;
-                });
                 document.getElementById('caseInfo').innerHTML +=
                     `<li class="w3-card w3-padding-large">
                             <h1>${indivdualCase.display_name}</h1>
                             <ul>
                                 <li class="caseInfo">Docket Number: ${indivdualCase.docket_number}</li>
-                                <li class="caseInfo">Petitioner: ${petitionerHTML} </li>
+                                <li class="caseInfo">Petitioner: ${indivdualCase.petitioner}</li>
                                 <li class="caseInfo">Respondent: ${indivdualCase.respondent}</li>
                                 <li class="caseInfo">Ruling: ${indivdualCase.ruling}</li>
                                 <li class="caseInfo">Date Filed: ${indivdualCase.date_filed}</li>
                                 <li class="caseInfo">Date Decided: ${indivdualCase.date_decided}</li>
                                 <li class="caseInfo">Reason: ${indivdualCase.held}</li>
-                                <li class="caseInfo"><h2>Links:</h2>
-                                    <ul class="caseInfo">
-                                        <li>SCOTUS Blog: <a href="${indivdualCase.links.scotus_blog}">${indivdualCase.links.scotus_blog}</a></li>
-                                        <li>SCOTUS View: <a href="https://www.supremecourt.gov/docket/docketfiles/html/public/${indivdualCase.docket_number}.html">https://www.supremecourt.gov/docket/docketfiles/html/public/${indivdualCase.docket_number}.html</a></li>
-                                        <li>SCOTUS Opinion: <a href="${indivdualCase.links.scotus_ruling}">${indivdualCase.links.scotus_ruling}</a></li>
-                                    </ul>
-                                </li>
                             </ul>
                         </li>`;
                 const yearDecided = new Date(indivdualCase.date_decided).getFullYear();
